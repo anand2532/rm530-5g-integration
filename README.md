@@ -16,52 +16,68 @@ This package provides automated tools and comprehensive documentation for settin
 
 ## Installation
 
-### From PyPI (when published)
-
 ```bash
 pip install rm530-5g-integration
 ```
 
-### From Source
-
+Or from source:
 ```bash
-git clone https://github.com/yourusername/rm530-5g-integration.git
+git clone https://github.com/anand2532/rm530-5g-integration.git
 cd rm530-5g-integration
 pip install .
 ```
 
 ## Quick Start
 
-### 1. Install the Package
+### 1. Install
 
 ```bash
 pip install rm530-5g-integration
 ```
 
-### 2. Run Setup
+### 2. Setup ECM Mode
 
 ```bash
-# Switch modem to ECM mode
 sudo rm530-setup-ecm airtelgprs.com
-
-# Configure NetworkManager
-rm530-configure-network
-
-# Verify connection
-rm530-verify
 ```
 
-### 3. Done!
+Replace `airtelgprs.com` with your carrier's APN. Wait ~15 seconds for modem restart.
 
-Your 5G modem is now configured and ready to use!
+### 3. Configure NetworkManager
+
+```bash
+# Find the ECM interface (typically usb0)
+ip link show
+
+# Create NetworkManager connection
+sudo nmcli connection add \
+    type ethernet \
+    ifname usb0 \
+    con-name "RM530-5G-ECM" \
+    ipv4.method auto \
+    ipv4.route-metric 100 \
+    ipv4.dns "8.8.8.8 1.1.1.1" \
+    connection.autoconnect yes
+
+# Connect
+sudo nmcli connection up RM530-5G-ECM
+```
+
+### 4. Verify
+
+```bash
+ping -c 4 google.com
+```
+
+**Done!** Your 5G modem is now configured and ready to use.
 
 ## Commands
 
 | Command | Purpose |
 |---------|---------|
-| `rm530-setup-ecm` | Switch modem to ECM mode |
-| `rm530-configure-network` | Setup NetworkManager |
-| `rm530-verify` | Verify 5G connection |
+| `rm530-setup-ecm <apn>` | Switch modem to ECM mode |
+| `rm530-configure-network [--interface usb0]` | Configure NetworkManager connection |
+| `rm530-verify` | Verify 5G connection status |
 
 ## Package Contents
 
@@ -92,25 +108,22 @@ rm530-5g-integration/
 
 ## Usage Examples
 
-### Basic Setup
+### Python API
 
 ```python
 from rm530_5g_integration.scripts.setup_ecm import switch_to_ecm_mode
+from rm530_5g_integration.scripts.configure_network import configure_network
+from rm530_5g_integration.scripts.verify import verify_connection
 
 # Switch to ECM mode
 success = switch_to_ecm_mode(apn="airtelgprs.com")
+
+# Configure NetworkManager
 if success:
-    print("ECM mode configured successfully!")
-```
+    configure_network(interface="usb0")
 
-### Verify Connection
-
-```python
-from rm530_5g_integration.scripts.verify import verify_5g_connection
-
-# Check if 5G is active
-status = verify_5g_connection()
-print(f"5G Status: {status}")
+# Verify connection
+verify_connection()
 ```
 
 ## Documentation
@@ -129,13 +142,13 @@ print(rm530_5g_integration.__file__)  # Shows package location
 
 ## Troubleshooting
 
-Common issues and solutions are documented in:
-- `rm530_5g_integration/reference/TROUBLESHOOTING.md`
-
-Or run the verification command:
+Run the verification tool to diagnose issues:
 ```bash
 rm530-verify
 ```
+
+See detailed troubleshooting guide:
+- `rm530_5g_integration/reference/TROUBLESHOOTING.md`
 
 ## Features in Detail
 
