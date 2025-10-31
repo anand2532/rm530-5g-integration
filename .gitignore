@@ -38,3 +38,7 @@ htmlcov/
 # Documentation builds
 docs/_build/
 
+# Release scripts (development tools)
+create_release.py
+create_release.sh
+
