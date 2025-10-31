@@ -71,9 +71,12 @@ class TestModem:
         mock_serial.read = MagicMock(side_effect=mock_read)
         mock_serial.write = MagicMock(side_effect=mock_write)
         mock_serial.flush = MagicMock(side_effect=mock_flush)
-        mock_serial.in_waiting = PropertyMock(
-            side_effect=lambda: sum(len(r) for r in response_buffer) if response_buffer else 0
-        )
+
+        # Make in_waiting return actual int value
+        def get_in_waiting():
+            return sum(len(r) for r in response_buffer) if response_buffer else 0
+
+        type(mock_serial).in_waiting = PropertyMock(side_effect=get_in_waiting)
 
         mock_serial_class.return_value = mock_serial
 
@@ -163,9 +166,12 @@ class TestModem:
         mock_serial.read = MagicMock(side_effect=mock_read)
         mock_serial.write = MagicMock(side_effect=mock_write)
         mock_serial.flush = MagicMock(side_effect=mock_flush)
-        mock_serial.in_waiting = PropertyMock(
-            side_effect=lambda: sum(len(r) for r in response_buffer) if response_buffer else 0
-        )
+
+        # Make in_waiting return actual int value
+        def get_in_waiting():
+            return sum(len(r) for r in response_buffer) if response_buffer else 0
+
+        type(mock_serial).in_waiting = PropertyMock(side_effect=get_in_waiting)
 
         mock_serial_class.return_value = mock_serial
 
@@ -222,9 +228,12 @@ class TestModem:
         mock_serial.read = MagicMock(side_effect=mock_read)
         mock_serial.write = MagicMock(side_effect=mock_write)
         mock_serial.flush = MagicMock(side_effect=mock_flush)
-        mock_serial.in_waiting = PropertyMock(
-            side_effect=lambda: sum(len(r) for r in response_buffer) if response_buffer else 0
-        )
+
+        # Make in_waiting return actual int value
+        def get_in_waiting():
+            return sum(len(r) for r in response_buffer) if response_buffer else 0
+
+        type(mock_serial).in_waiting = PropertyMock(side_effect=get_in_waiting)
 
         mock_serial_class.return_value = mock_serial
 
