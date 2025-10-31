@@ -17,9 +17,12 @@ class TestConfigLoader:
     def test_config_loader_default_path(self):
         """Test default config path."""
         with patch("pathlib.Path.home", return_value=Path("/home/test")):
-            loader = ConfigLoader()
-            expected = Path("/home/test/.rm530/config.yaml")
-            assert loader.config_path == str(expected)
+            with patch("pathlib.Path.mkdir") as mock_mkdir:
+                loader = ConfigLoader()
+                expected = Path("/home/test/.rm530/config.yaml")
+                assert loader.config_path == str(expected)
+                # Verify mkdir was called (even if directory already exists)
+                mock_mkdir.assert_called_once()
 
     def test_config_loader_custom_path(self):
         """Test custom config path."""
