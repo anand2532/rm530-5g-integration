@@ -34,6 +34,14 @@ Thumbs.db
 .pytest_cache/
 .coverage
 htmlcov/
+.coverage.*
+coverage.xml
+*.cover
+
+# Type checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
 
 # Documentation builds
 docs/_build/
