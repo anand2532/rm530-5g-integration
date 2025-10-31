@@ -15,6 +15,7 @@ from rm530_5g_integration.config.defaults import (
     DEFAULT_NETWORK_SETTINGS,
     DEFAULT_MODEM_SETTINGS,
 )
+from rm530_5g_integration.config.validator import validate_config, ConfigValidator
 from rm530_5g_integration.utils.logging import get_logger
 
 logger = get_logger(__name__)
@@ -58,6 +59,13 @@ class ConfigLoader:
         self.config.setdefault("carriers", DEFAULT_CARRIERS)
         self.config.setdefault("defaults", DEFAULT_NETWORK_SETTINGS)
         self.config.setdefault("modem", DEFAULT_MODEM_SETTINGS)
+        
+        # Validate configuration
+        try:
+            validate_config(self.config)
+        except Exception as e:
+            logger.warning(f"Configuration validation warning: {e}")
+            # Don't raise, but log warning
     
     def get_carrier_config(self, carrier: str) -> Dict[str, Any]:
         """
