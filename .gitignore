@@ -50,3 +50,11 @@ docs/_build/
 create_release.py
 create_release.sh
 
+# Build artifacts
+dist/
+build/
+*.egg-info/
+*.egg
+*.whl
+*.tar.gz
+
