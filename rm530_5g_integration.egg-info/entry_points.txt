@@ -1,0 +1,4 @@
+[console_scripts]
+rm530-configure-network = rm530_5g_integration.scripts.configure_network:main
+rm530-setup-ecm = rm530_5g_integration.scripts.setup_ecm:main
+rm530-verify = rm530_5g_integration.scripts.verify:main
