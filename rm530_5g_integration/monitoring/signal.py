@@ -1,8 +1,8 @@
 """Signal quality monitoring."""
 
 import re
-from typing import Optional
 from dataclasses import dataclass
+from typing import Optional
 
 from rm530_5g_integration.core.modem import Modem
 from rm530_5g_integration.utils.exceptions import SignalQualityError
@@ -14,12 +14,13 @@ logger = get_logger(__name__)
 @dataclass
 class SignalQuality:
     """Signal quality metrics."""
+
     rssi: Optional[int] = None  # Received Signal Strength Indicator (dBm)
     rsrp: Optional[int] = None  # Reference Signal Received Power (dBm)
     rsrq: Optional[float] = None  # Reference Signal Received Quality (dB)
     sinr: Optional[float] = None  # Signal to Interference plus Noise Ratio (dB)
     network_type: Optional[str] = None  # 4G, 5G, etc.
-    
+
     def __str__(self) -> str:
         """String representation."""
         parts = []
@@ -39,21 +40,21 @@ class SignalQuality:
 def get_signal_quality(modem: Modem) -> SignalQuality:
     """
     Get signal quality from modem.
-    
+
     Args:
         modem: Connected Modem instance
-    
+
     Returns:
         SignalQuality object
     """
     quality = SignalQuality()
-    
+
     try:
         # Get network registration status and signal strength
         # AT+CSQ - Signal Quality
         response = modem.get_response("AT+CSQ", timeout=3)
         if response:
-            match = re.search(r'\+CSQ:\s*(\d+),\s*(\d+)', response)
+            match = re.search(r"\+CSQ:\s*(\d+),\s*(\d+)", response)
             if match:
                 rssi = int(match.group(1))
                 # Convert to dBm (0-31 scale, where 31 = -51 dBm or better)
@@ -62,7 +63,7 @@ def get_signal_quality(modem: Modem) -> SignalQuality:
                 else:
                     quality.rssi = -113 + (rssi * 2)
                 logger.debug(f"RSSI: {quality.rssi} dBm")
-        
+
         # AT+QNWINFO - Network Information
         response = modem.get_response("AT+QNWINFO", timeout=3)
         if response:
@@ -70,15 +71,15 @@ def get_signal_quality(modem: Modem) -> SignalQuality:
             if match:
                 quality.network_type = match.group(1)
                 logger.debug(f"Network type: {quality.network_type}")
-        
+
         # AT+QENG="servingcell" - Serving cell information (5G/4G)
         response = modem.get_response('AT+QENG="servingcell"', timeout=3)
         if response:
             # Parse RSRP, RSRQ, SINR
-            rsrp_match = re.search(r'rsrp[:\s]+(-?\d+)', response, re.IGNORECASE)
-            rsrq_match = re.search(r'rsrq[:\s]+(-?\d+(?:\.\d+)?)', response, re.IGNORECASE)
-            sinr_match = re.search(r'sinr[:\s]+(-?\d+(?:\.\d+)?)', response, re.IGNORECASE)
-            
+            rsrp_match = re.search(r"rsrp[:\s]+(-?\d+)", response, re.IGNORECASE)
+            rsrq_match = re.search(r"rsrq[:\s]+(-?\d+(?:\.\d+)?)", response, re.IGNORECASE)
+            sinr_match = re.search(r"sinr[:\s]+(-?\d+(?:\.\d+)?)", response, re.IGNORECASE)
+
             if rsrp_match:
                 quality.rsrp = int(rsrp_match.group(1))
                 logger.debug(f"RSRP: {quality.rsrp} dBm")
@@ -88,10 +89,9 @@ def get_signal_quality(modem: Modem) -> SignalQuality:
             if sinr_match:
                 quality.sinr = float(sinr_match.group(1))
                 logger.debug(f"SINR: {quality.sinr} dB")
-        
+
     except Exception as e:
         logger.warning(f"Error reading signal quality: {e}")
         # Don't raise, return partial data
-    
-    return quality
 
+    return quality

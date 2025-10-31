@@ -1,8 +1,9 @@
 """Pytest configuration and fixtures."""
 
-import pytest
-from unittest.mock import Mock, MagicMock
 from typing import Generator
+from unittest.mock import MagicMock, Mock
+
+import pytest
 
 
 @pytest.fixture
@@ -14,12 +15,12 @@ def mock_serial():
     serial_mock.timeout = 2
     serial_mock.is_open = True
     serial_mock.in_waiting = 0
-    serial_mock.read.return_value = b'OK\r\n'
+    serial_mock.read.return_value = b"OK\r\n"
     serial_mock.write.return_value = None
-    
+
     def mock_read(size=None):
-        return b'OK\r\n'
-    
+        return b"OK\r\n"
+
     serial_mock.read = MagicMock(side_effect=mock_read)
     return serial_mock
 
@@ -48,23 +49,15 @@ def sample_config():
             "airtel": {
                 "apn": "airtelgprs.com",
                 "preferred_interface": "usb0",
-                "dns": ["8.8.8.8", "1.1.1.1"]
+                "dns": ["8.8.8.8", "1.1.1.1"],
             },
-            "jio": {
-                "apn": "jionet",
-                "preferred_interface": "usb0",
-                "dns": ["8.8.8.8", "1.1.1.1"]
-            }
+            "jio": {"apn": "jionet", "preferred_interface": "usb0", "dns": ["8.8.8.8", "1.1.1.1"]},
         },
         "defaults": {
             "route_metric": 100,
             "autoconnect": True,
             "ipv4_method": "auto",
-            "connection_name": "RM530-5G-ECM"
+            "connection_name": "RM530-5G-ECM",
         },
-        "modem": {
-            "at_baudrate": 115200,
-            "timeout": 2
-        }
+        "modem": {"at_baudrate": 115200, "timeout": 2},
     }
-

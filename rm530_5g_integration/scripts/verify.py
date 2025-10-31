@@ -1,20 +1,15 @@
 """Verification script for RM530 5G connection."""
 
-import sys
-import subprocess
 import re
+import subprocess
+import sys
 
 
 def check_ecm_interface(interface_pattern="usb"):
     """Check if ECM interface is present."""
     try:
-        result = subprocess.run(
-            ["ip", "link", "show"],
-            capture_output=True,
-            text=True,
-            check=True
-        )
-        
+        result = subprocess.run(["ip", "link", "show"], capture_output=True, text=True, check=True)
+
         interfaces = re.findall(rf"\d+:\s+({interface_pattern}\d+)", result.stdout)
         if interfaces:
             print(f"✓ Found ECM interface: {', '.join(interfaces)}")
@@ -31,12 +26,9 @@ def check_network_manager(connection_name="RM530-5G-ECM"):
     """Check NetworkManager connection status."""
     try:
         result = subprocess.run(
-            ["nmcli", "connection", "show", "--active"],
-            capture_output=True,
-            text=True,
-            check=True
+            ["nmcli", "connection", "show", "--active"], capture_output=True, text=True, check=True
         )
-        
+
         if connection_name in result.stdout:
             print(f"✓ NetworkManager connection '{connection_name}' is active.")
             return True
@@ -53,9 +45,7 @@ def check_internet_connectivity():
     """Check internet connectivity."""
     try:
         result = subprocess.run(
-            ["ping", "-c", "1", "-W", "2", "8.8.8.8"],
-            capture_output=True,
-            check=True
+            ["ping", "-c", "1", "-W", "2", "8.8.8.8"], capture_output=True, check=True
         )
         print("✓ Internet connectivity: OK")
         return True
@@ -70,26 +60,26 @@ def verify_connection():
     print("RM530 5G Connection Verification")
     print("=" * 60)
     print()
-    
+
     checks = []
-    
+
     # Check ECM interface
     checks.append(("ECM Interface", check_ecm_interface()))
-    
+
     # Check NetworkManager
     nm_status = check_network_manager()
     if nm_status is not None:
         checks.append(("NetworkManager", nm_status))
-    
+
     # Check internet
     checks.append(("Internet", check_internet_connectivity()))
-    
+
     print()
     print("=" * 60)
-    
+
     passed = sum(1 for _, status in checks if status)
     total = len(checks)
-    
+
     if passed == total:
         print(f"✓ All checks passed ({passed}/{total})")
         return True
@@ -108,4 +98,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

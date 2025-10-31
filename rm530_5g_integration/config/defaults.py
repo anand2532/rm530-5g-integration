@@ -1,6 +1,6 @@
 """Default configuration values."""
 
-from typing import Dict, Any
+from typing import Any, Dict
 
 # Default carrier configurations
 DEFAULT_CARRIERS: Dict[str, Dict[str, Any]] = {
@@ -40,4 +40,3 @@ DEFAULT_MODEM_SETTINGS = {
     "timeout": 2,
     "command_timeout": 5,
 }
-

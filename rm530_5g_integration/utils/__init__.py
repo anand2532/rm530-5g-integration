@@ -1,20 +1,20 @@
 """Utility modules for RM530 5G Integration."""
 
 from rm530_5g_integration.utils.exceptions import (
-    RM530Error,
+    ConfigurationError,
     ModemNotFoundError,
     NetworkConfigurationError,
+    RM530Error,
     SerialCommunicationError,
-    ConfigurationError,
     SignalQualityError,
 )
-from rm530_5g_integration.utils.logging import setup_logger, get_logger
+from rm530_5g_integration.utils.logging import get_logger, setup_logger
 from rm530_5g_integration.utils.retry import (
-    retry,
-    retry_with_backoff,
-    retry_on_retryable,
-    RetryableError,
     NonRetryableError,
+    RetryableError,
+    retry,
+    retry_on_retryable,
+    retry_with_backoff,
 )
 
 __all__ = [
@@ -32,4 +32,3 @@ __all__ = [
     "RetryableError",
     "NonRetryableError",
 ]
-
