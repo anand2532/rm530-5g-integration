@@ -2,7 +2,7 @@
 
 ## Overview
 
-Configure the **Waveshare RM530 5G modem** to automatically connect at boot, set as the default internet route, and configure DNS correctly—while preventing Wi-Fi or Ethernet from overriding the 5G connection.
+Configure the **Quectel RM530 5G modem** to automatically connect at boot, set as the default internet route, and configure DNS correctly—while preventing Wi-Fi or Ethernet from overriding the 5G connection.
 
 **Goal**: Ensure all internet traffic routes through the 5G modem with stable DNS configuration.
 
@@ -10,7 +10,7 @@ Configure the **Waveshare RM530 5G modem** to automatically connect at boot, set
 
 ## Prerequisites
 
-- Raspberry Pi with Waveshare RM530 5G modem connected
+- Raspberry Pi with Quectel RM530 5G modem connected
 - Root/sudo access
 - Internet connectivity for initial setup
 
@@ -59,7 +59,7 @@ Create the script at `/usr/local/bin/start-5g.sh`:
 
 ```bash
 #!/bin/bash
-# Waveshare RM530 5G autostart
+# Quectel RM530 5G autostart
 
 # Wait for USB modem
 for i in {1..20}; do
@@ -119,7 +119,7 @@ Create the service file at `/etc/systemd/system/start-5g.service`:
 
 ```ini
 [Unit]
-Description=Auto start Waveshare RM530 5G modem
+Description=Auto start Quectel RM530 5G modem
 After=network.target
 Wants=network.target
 

@@ -2,7 +2,7 @@
 
 ## Overview
 
-Configure the **Waveshare RM530 5G modem** to use **ECM (Ethernet Control Model)** mode instead of QMI. This approach:
+Configure the **Quectel RM530 5G modem** to use **ECM (Ethernet Control Model)** mode instead of QMI. This approach:
 - ✅ Uses native Linux kernel drivers (no QMI overhead)
 - ✅ Automatically creates a network interface
 - ✅ Works seamlessly with NetworkManager
@@ -15,7 +15,7 @@ Configure the **Waveshare RM530 5G modem** to use **ECM (Ethernet Control Model)
 
 ## Prerequisites
 
-- Raspberry Pi with Waveshare RM530 5G modem connected
+- Raspberry Pi with Quectel RM530 5G modem connected
 - Serial terminal access to the modem (for AT commands)
 - Root/sudo access
 - NetworkManager installed (default on Raspberry Pi OS)

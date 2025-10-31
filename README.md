@@ -5,11 +5,11 @@
 [![PyPI version](https://badge.fury.io/py/rm530-5g-integration.svg)](https://badge.fury.io/py/rm530-5g-integration)
 [![CI Status](https://github.com/anand2532/rm530-5g-integration/workflows/CI/badge.svg)](https://github.com/anand2532/rm530-5g-integration/actions)
 
-Python package for integrating Waveshare RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
+Python package for integrating Quectel RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
 
 ## Overview
 
-This package provides automated tools and comprehensive documentation for setting up a Waveshare RM530 5G modem in ECM mode on Raspberry Pi. ECM mode provides native Linux integration with better stability and performance compared to QMI mode.
+This package provides automated tools and comprehensive documentation for setting up a Quectel RM530 5G modem in ECM mode on Raspberry Pi. ECM mode provides native Linux integration with better stability and performance compared to QMI mode.
 
 ## Features
 
@@ -159,7 +159,7 @@ monitor.start()
 
 - **Python**: 3.9+
 - **OS**: Raspberry Pi OS or Debian-based Linux
-- **Hardware**: Waveshare RM530 5G modem
+- **Hardware**: Quectel RM530 5G modem
 - **Software**: NetworkManager (installed by default on most Linux distributions)
 - **Privileges**: Root/sudo access required for setup
 
@@ -235,7 +235,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## Acknowledgments
 
-- Based on Waveshare RM530 5G modem specifications
+- Based on Quectel RM530 5G modem specifications
 - Compatible with Waveshare PCIe TO 4G/5G M.2 USB3.2 HAT+
 
 ## Support

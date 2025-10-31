@@ -3,7 +3,7 @@ RM530 5G Integration Documentation
 
 Welcome to the rm530-5g-integration documentation!
 
-This package provides integration tools for Waveshare RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
+This package provides integration tools for Quectel RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
 
 .. toctree::
    :maxdepth: 2
