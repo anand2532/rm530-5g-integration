@@ -1,4 +1,4 @@
-# RM530 5G Integration Package v2.0
+# RM530 5G Integration Package v3.0
 
 Python package for integrating Waveshare RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
 
@@ -6,15 +6,18 @@ Python package for integrating Waveshare RM530 5G modem with Raspberry Pi using 
 
 This package provides automated tools and comprehensive documentation for setting up a Waveshare RM530 5G modem in ECM mode on Raspberry Pi. ECM mode provides native Linux integration with better stability and performance compared to QMI mode.
 
-## 🎉 Version 2.0 Highlights
+## 🎉 Version 3.0 Highlights
 
-- ✨ **Unified Setup Command** - Complete setup in one command
+- ✨ **Enhanced CLI with Rich** - Beautiful terminal output with progress bars and tables
+- 🏥 **Health Monitoring** - Automatic connection health checks and alerts
+- 🔄 **Retry Logic** - Robust error recovery with exponential backoff
+- ✅ **Testing Framework** - Comprehensive test suite with pytest
+- 🚀 **CI/CD Pipeline** - Automated testing and quality checks
 - 📊 **Signal Quality Monitoring** - RSSI, RSRP, RSRQ, SINR metrics
 - 📈 **Connection Statistics** - Real-time bandwidth and connection stats
-- ⚙️ **Configuration Files** - YAML config for multiple carriers
+- ⚙️ **Configuration Validation** - Validate configuration files before use
 - 🎯 **Type Hints** - Full type annotations for better IDE support
 - 📝 **Structured Logging** - Professional logging system
-- 🔧 **Better Error Handling** - Custom exceptions with helpful messages
 
 ## Features
 
@@ -85,13 +88,14 @@ rm530-verify
 
 ## Commands
 
-### v2.0 Commands (Recommended)
+### v3.0 Commands (Recommended)
 
 | Command | Purpose |
 |---------|---------|
 | `rm530-setup [--apn APN \| --carrier NAME]` | Complete setup (ECM + NetworkManager) |
 | `rm530-status [--interface usb0]` | Check connection status and statistics |
 | `rm530-signal` | Display signal quality (RSSI, RSRP, RSRQ, SINR) |
+| `rm530-health [--once \| --live]` | Monitor connection health (NEW in v3.0) |
 
 ### Legacy Commands (v1.0 - Still Supported)
 
@@ -130,7 +134,7 @@ sudo rm530-setup --carrier airtel
 
 ## Usage Examples
 
-### Python API (v2.0)
+### Python API (v3.0)
 
 ```python
 from rm530_5g_integration import RM530Manager
@@ -306,6 +310,26 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 MIT License - see LICENSE file for details.
 
 ## Changelog
+
+### Version 3.0.0
+
+**New Features:**
+- ✨ Enhanced CLI with Rich support (colored output, progress bars, tables)
+- 🏥 Health monitoring system (`rm530-health` command)
+- 🔄 Retry logic utilities with exponential backoff
+- ✅ Comprehensive testing framework with pytest
+- 🚀 CI/CD pipeline with GitHub Actions
+- 📋 Configuration validation
+- 📚 Sphinx documentation setup
+
+**Improvements:**
+- Better code quality with automated tools (black, isort, mypy, flake8)
+- Pre-commit hooks for code quality
+- Enhanced error recovery mechanisms
+- Improved developer experience
+
+**Breaking Changes:**
+- Python 3.9+ required (was 3.8+ in v2.0)
 
 ### Version 2.0.0
 
