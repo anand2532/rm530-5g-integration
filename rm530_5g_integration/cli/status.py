@@ -3,10 +3,20 @@
 import sys
 import argparse
 
+try:
+    from rich.console import Console
+    from rich.table import Table
+    from rich.panel import Panel
+    from rich import box
+    RICH_AVAILABLE = True
+except ImportError:
+    RICH_AVAILABLE = False
+
 from rm530_5g_integration.core.manager import RM530Manager
 from rm530_5g_integration.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
+console = Console() if RICH_AVAILABLE else None
 
 
 def main():
@@ -44,37 +54,75 @@ def main():
             }
             print(json.dumps(output, indent=2))
         else:
-            print("=" * 60)
-            print("RM530 5G Connection Status")
-            print("=" * 60)
-            print()
-            print(f"Interface: {stats.interface}")
-            print(f"Status: {'✓ Connected' if stats.is_connected else '✗ Disconnected'}")
-            if stats.ip_address:
-                print(f"IP Address: {stats.ip_address}")
-            if stats.bytes_sent is not None:
-                print(f"Bytes Sent: {stats._format_bytes(stats.bytes_sent)}")
-            if stats.bytes_received is not None:
-                print(f"Bytes Received: {stats._format_bytes(stats.bytes_received)}")
-            if stats.packets_sent is not None:
-                print(f"Packets Sent: {stats.packets_sent}")
-            if stats.packets_received is not None:
-                print(f"Packets Received: {stats.packets_received}")
-            
-            # Verify connectivity
-            if stats.is_connected:
-                if manager.verify():
-                    print("\n✓ Internet connectivity: OK")
+            if RICH_AVAILABLE:
+                # Create main status table
+                table = Table(title="RM530 5G Connection Status", box=box.ROUNDED)
+                table.add_column("Property", style="cyan", no_wrap=True)
+                table.add_column("Value", style="green")
+                
+                status_text = "[bold green]✓ Connected[/bold green]" if stats.is_connected else "[bold red]✗ Disconnected[/bold red]"
+                table.add_row("Status", status_text)
+                table.add_row("Interface", stats.interface)
+                
+                if stats.ip_address:
+                    table.add_row("IP Address", stats.ip_address)
                 else:
-                    print("\n⚠ Internet connectivity: Failed")
-            
-            print()
+                    table.add_row("IP Address", "[dim]N/A[/dim]")
+                
+                # Connection statistics
+                if stats.is_connected:
+                    if stats.bytes_sent is not None:
+                        table.add_row("Bytes Sent", stats._format_bytes(stats.bytes_sent))
+                    if stats.bytes_received is not None:
+                        table.add_row("Bytes Received", stats._format_bytes(stats.bytes_received))
+                    if stats.packets_sent is not None:
+                        table.add_row("Packets Sent", f"{stats.packets_sent:,}")
+                    if stats.packets_received is not None:
+                        table.add_row("Packets Received", f"{stats.packets_received:,}")
+                
+                console.print(table)
+                console.print()
+                
+                # Internet connectivity check
+                if stats.is_connected:
+                    internet_status = "[bold green]✓ OK[/bold green]" if manager.verify() else "[bold yellow]⚠ Failed[/bold yellow]"
+                    console.print(f"Internet Connectivity: {internet_status}")
+                    console.print()
+            else:
+                # Fallback to plain text
+                print("=" * 60)
+                print("RM530 5G Connection Status")
+                print("=" * 60)
+                print()
+                print(f"Interface: {stats.interface}")
+                print(f"Status: {'✓ Connected' if stats.is_connected else '✗ Disconnected'}")
+                if stats.ip_address:
+                    print(f"IP Address: {stats.ip_address}")
+                if stats.bytes_sent is not None:
+                    print(f"Bytes Sent: {stats._format_bytes(stats.bytes_sent)}")
+                if stats.bytes_received is not None:
+                    print(f"Bytes Received: {stats._format_bytes(stats.bytes_received)}")
+                if stats.packets_sent is not None:
+                    print(f"Packets Sent: {stats.packets_sent}")
+                if stats.packets_received is not None:
+                    print(f"Packets Received: {stats.packets_received}")
+                
+                # Verify connectivity
+                if stats.is_connected:
+                    if manager.verify():
+                        print("\n✓ Internet connectivity: OK")
+                    else:
+                        print("\n⚠ Internet connectivity: Failed")
+                
+                print()
             
     except Exception as e:
-        print(f"✗ Error: {e}")
+        if RICH_AVAILABLE:
+            console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
+        else:
+            print(f"✗ Error: {e}")
         sys.exit(1)
 
 
 if __name__ == "__main__":
     main()
-
