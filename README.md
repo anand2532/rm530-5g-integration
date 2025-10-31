@@ -250,16 +250,39 @@ manager.setup(apn="airtelgprs.com")
 
 ## Documentation
 
+### Package Documentation
+
 Full documentation is included in the package:
 
 - **Main Docs**: `rm530_5g_integration/docs/`
 - **References**: `rm530_5g_integration/reference/`
 - **Legacy**: `rm530_5g_integration/legacy/`
 
-Access via Python:
+### Project Documentation
+
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and upgrade guides
+- **[docs/BUILD-PROCESS.md](docs/BUILD-PROCESS.md)** - Build and release process
+- **[docs/PUBLISH.md](docs/PUBLISH.md)** - Publishing guide
+- **[docs/QUICK-PUBLISH.md](docs/QUICK-PUBLISH.md)** - Quick publishing reference
+
+### Access Package Documentation
+
 ```python
 import rm530_5g_integration
 print(rm530_5g_integration.__file__)  # Shows package location
+```
+
+### Generate API Documentation
+
+```bash
+# Install docs dependencies
+pip install -e ".[docs]"
+
+# Build documentation
+cd docs && make html
+
+# View documentation
+open _build/html/index.html
 ```
 
 ## Troubleshooting
@@ -303,7 +326,11 @@ See detailed troubleshooting guide:
 
 ## Contributing
 
-Contributions are welcome! Please feel free to submit a Pull Request.
+Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+
+- Report bugs via [GitHub Issues](https://github.com/anand2532/rm530-5g-integration/issues)
+- Submit pull requests for improvements
+- Follow the code style and testing guidelines
 
 ## License
 
@@ -311,53 +338,7 @@ MIT License - see LICENSE file for details.
 
 ## Changelog
 
-### Version 3.0.0
-
-**New Features:**
-- ✨ Enhanced CLI with Rich support (colored output, progress bars, tables)
-- 🏥 Health monitoring system (`rm530-health` command)
-- 🔄 Retry logic utilities with exponential backoff
-- ✅ Comprehensive testing framework with pytest
-- 🚀 CI/CD pipeline with GitHub Actions
-- 📋 Configuration validation
-- 📚 Sphinx documentation setup
-
-**Improvements:**
-- Better code quality with automated tools (black, isort, mypy, flake8)
-- Pre-commit hooks for code quality
-- Enhanced error recovery mechanisms
-- Improved developer experience
-
-**Breaking Changes:**
-- Python 3.9+ required (was 3.8+ in v2.0)
-
-### Version 2.0.0
-
-**New Features:**
-- Unified setup command (`rm530-setup`)
-- Signal quality monitoring (`rm530-signal`)
-- Connection statistics (`rm530-status`)
-- Configuration file support (YAML)
-- `RM530Manager` class for unified API
-- Full type hints throughout codebase
-- Structured logging system
-- Custom exceptions with better error messages
-
-**Breaking Changes:**
-- Python 3.8+ required (was 3.7+)
-- New API structure (backward compatible with v1.0 scripts)
-
-**Improvements:**
-- Better code organization
-- Enhanced error handling
-- Improved documentation
-
-### Version 1.0.0
-
-- Initial release
-- ECM mode setup
-- NetworkManager configuration
-- Basic verification tools
+See [CHANGELOG.md](CHANGELOG.md) for detailed version history and upgrade guides.
 
 ## Acknowledgments
 
