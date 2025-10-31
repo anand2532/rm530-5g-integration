@@ -78,8 +78,9 @@ class ConfigLoader:
         Returns:
             Carrier configuration dictionary
         """
-        carriers = self.config.get("carriers", DEFAULT_CARRIERS)
-        return carriers.get(carrier.lower(), {})
+        carriers: Dict[str, Any] = self.config.get("carriers", DEFAULT_CARRIERS)
+        result = carriers.get(carrier.lower(), {})
+        return dict(result) if isinstance(result, dict) else {}  # type: ignore[no-any-return]
 
     def get_defaults(self) -> Dict[str, Any]:
         """Get default network settings."""

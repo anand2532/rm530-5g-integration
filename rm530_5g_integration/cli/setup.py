@@ -36,7 +36,7 @@ def print_header(text: str) -> None:
 
 def print_success(text: str) -> None:
     """Print success message."""
-    if RICH_AVAILABLE:
+    if RICH_AVAILABLE and console is not None:
         console.print(f"[bold green]✓[/bold green] {text}")
     else:
         print(f"✓ {text}")
@@ -44,7 +44,7 @@ def print_success(text: str) -> None:
 
 def print_error(text: str) -> None:
     """Print error message."""
-    if RICH_AVAILABLE:
+    if RICH_AVAILABLE and console is not None:
         console.print(f"[bold red]✗[/bold red] {text}")
     else:
         print(f"✗ {text}")
@@ -52,7 +52,7 @@ def print_error(text: str) -> None:
 
 def print_warning(text: str) -> None:
     """Print warning message."""
-    if RICH_AVAILABLE:
+    if RICH_AVAILABLE and console is not None:
         console.print(f"[bold yellow]⚠[/bold yellow] {text}")
     else:
         print(f"⚠ {text}")
@@ -134,16 +134,16 @@ Examples:
 
         # Step 2: Switching to ECM mode
         if RICH_AVAILABLE:
-        if console is None:
-            print("Rich library not available")
-            return
+            if console is None:
+                print("Rich library not available")
+                return
 
-        with Progress(
-            SpinnerColumn(),
-            TextColumn("[progress.description]{task.description}"),
-            BarColumn(),
-            console=console,
-        ) as progress:
+            with Progress(
+                SpinnerColumn(),
+                TextColumn("[progress.description]{task.description}"),
+                BarColumn(),
+                console=console,
+            ) as progress:
                 task = progress.add_task("Switching to ECM mode...", total=100)
                 progress.update(task, completed=50)
                 time.sleep(0.5)

@@ -246,10 +246,7 @@ def main():
         sys.exit(0)
     except Exception as e:
         if RICH_AVAILABLE and console is not None:
-            if console is not None:
-                console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
-            else:
-                print(f"✗ Error: {str(e)}")
+            console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
         else:
             print(f"✗ Error: {e}")
         sys.exit(1)
