@@ -14,6 +14,8 @@ This package provides automated tools and comprehensive documentation for settin
 ## Features
 
 - 🚀 **One-Command Setup** - Complete modem configuration in a single command
+- 🎯 **Intelligent Modem Detection** - Automatic detection across all USB modes
+- 🔍 **Mode Detection** - Detects current modem mode and switches only when needed
 - 📊 **Signal Quality Monitoring** - Real-time RSSI, RSRP, RSRQ, and SINR metrics
 - 📈 **Connection Statistics** - Bandwidth monitoring and connection stats
 - 🏥 **Health Monitoring** - Automatic connection health checks and alerts
@@ -57,10 +59,13 @@ sudo rm530-setup --carrier airtel
 ```
 
 The setup command automatically:
-1. Switches modem to ECM mode
-2. Configures NetworkManager
-3. Activates the connection
-4. Verifies the setup
+1. Detects modem and checks current USB mode
+2. Switches to ECM mode (if needed)
+3. Configures NetworkManager
+4. Activates the connection
+5. Verifies the setup
+
+**v4.0 Improvements**: The setup now intelligently detects your modem's current mode and only switches when necessary, preventing unnecessary resets and improving reliability.
 
 ### Check Status
 
@@ -111,12 +116,12 @@ defaults:
 ### Basic Usage
 
 ```python
-from rm530_5g_integration import RM530Manager
+from rm530_5g_integration import RM530Manager, Modem, ModemMode
 
 # Initialize manager
 manager = RM530Manager()
 
-# Complete setup
+# Complete setup (automatically detects and switches mode)
 manager.setup(apn="airtelgprs.com", carrier="airtel")
 
 # Check status
@@ -132,6 +137,24 @@ print(f"Network Type: {signal.network_type}")
 # Verify connection
 if manager.verify():
     print("Connection is working!")
+```
+
+### Advanced: Manual Mode Detection
+
+```python
+from rm530_5g_integration import Modem, ModemMode
+
+# Check current modem mode
+modem = Modem()
+modem.connect()
+current_mode = modem.get_mode()
+
+if current_mode == ModemMode.ECM:
+    print("Already in ECM mode!")
+else:
+    print(f"Current mode: {current_mode}")
+    modem.switch_to_ecm_mode(apn="airtelgprs.com")
+    modem.disconnect()
 ```
 
 ### Health Monitoring

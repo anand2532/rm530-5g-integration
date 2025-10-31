@@ -15,7 +15,7 @@ except ImportError:
     RICH_AVAILABLE = False
 
 from rm530_5g_integration.core.manager import RM530Manager
-from rm530_5g_integration.utils.exceptions import RM530Error
+from rm530_5g_integration.utils.exceptions import ModemNotFoundError, RM530Error
 from rm530_5g_integration.utils.logging import setup_logger
 
 logger = setup_logger(__name__)
@@ -124,6 +124,15 @@ def main():
 
                 print()
 
+    except ModemNotFoundError as e:
+        if RICH_AVAILABLE:
+            console.print(f"[bold red]✗ Error:[/bold red] Modem not found")
+            console.print(f"[yellow]Details:[/yellow] {str(e)}")
+            console.print("\n[cyan]Try running:[/cyan] sudo rm530-setup --apn <your_apn>")
+        else:
+            print(f"✗ Error: Modem not found - {e}")
+            print("\nTry running: sudo rm530-setup --apn <your_apn>")
+        sys.exit(1)
     except RM530Error as e:
         if RICH_AVAILABLE:
             console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")

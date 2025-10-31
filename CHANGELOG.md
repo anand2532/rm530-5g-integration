@@ -5,6 +5,50 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.0] - 2024-11-01
+
+### Added
+- 🎯 **Intelligent Modem Detection** - Comprehensive modem detection system
+  - USB device enumeration via multiple methods (lsusb, usb-devices, sysfs)
+  - Network interface detection for CDC/ECM interfaces
+  - Multi-port scanning including /dev/ttyUSB* and /dev/ttyACM* devices
+  - Better port prioritization based on modem configuration
+- 🔍 **Mode Detection** - Automatic modem mode detection
+  - New `ModemMode` enum (QMI, ECM, MBIM, RNDIS, UNKNOWN)
+  - `get_mode()` method to query current USB mode
+  - Smart mode switching only when needed
+  - Prevents unnecessary modem resets when already in target mode
+- 📊 **Enhanced Setup Process** - Step-by-step setup with informative messages
+  - Real modem detection before configuration
+  - Current mode display
+  - Troubleshooting hints when modem not found
+  - Better error messages with actionable suggestions
+- 🛠️ **Improved Error Handling**
+  - Specific error messages for different failure scenarios
+  - Troubleshooting tips in error output
+  - Better ModemNotFoundError handling with suggestions
+
+### Fixed
+- 🐛 Fixed modem detection issues when modem is already in ECM mode
+- 🐛 Fixed "No modem found" errors after successful setup
+- 🐛 Improved port scanning to find modem in various configurations
+- 🐛 Better handling of CDC-ACM devices
+- 🐛 Fixed missing `Table` import issue in health module
+
+### Changed
+- **Improved CLI UX** - More informative setup process
+  - Step-by-step progress indicators (1/4, 2/4, etc.)
+  - Detailed detection information
+  - Helpful troubleshooting messages
+  - Better error context
+
+### Improved
+- Better robustness when modem is in different USB modes
+- Enhanced logging for debugging modem detection issues
+- More comprehensive USB device enumeration
+- Better handling of permission errors
+- Improved signal CLI error messages
+
 ## [3.0.2] - 2024-10-31
 
 ### Changed
@@ -106,12 +150,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Version History
 
-- **v3.0.1** (Current) - Fixed README description for PyPI
+- **v4.0.0** (Current) - Intelligent modem detection, mode detection, and improved UX
+- **v3.0.2** - Fixed README description for PyPI
 - **v3.0.0** - Major release with testing, CI/CD, health monitoring, and enhanced CLI
 - **v2.0.0** - Unified setup, signal monitoring, configuration management
 - **v1.0.0** - Initial release with basic ECM setup functionality
 
 ## Upgrade Guide
+
+### Upgrading from v3.x to v4.0
+
+**Automatic migration** - No breaking changes! Just upgrade:
+
+```bash
+pip install --upgrade rm530-5g-integration
+```
+
+**What's new:**
+- Better modem detection that works in all USB modes
+- Automatic mode detection before setup
+- More informative setup process
+- Better error messages when modem not found
+
+**No action required** - all existing configurations and commands work as before.
 
 ### Upgrading from v2.0 to v3.0
 

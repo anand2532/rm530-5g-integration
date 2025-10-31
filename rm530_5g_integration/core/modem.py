@@ -2,7 +2,10 @@
 
 import glob
 import os
+import re
+import subprocess
 import time
+from enum import Enum
 from typing import Any, Dict, Optional
 
 import serial
@@ -14,6 +17,20 @@ from rm530_5g_integration.utils.exceptions import (
 from rm530_5g_integration.utils.logging import get_logger
 
 logger = get_logger(__name__)
+
+
+class ModemMode(Enum):
+    """USB mode enumeration for RM530 modem."""
+
+    QMI = 0
+    ECM = 1
+    MBIM = 2
+    RNDIS = 3
+    UNKNOWN = -1
+
+    def __str__(self) -> str:
+        """Return string representation."""
+        return self.name
 
 
 class Modem:
@@ -161,6 +178,42 @@ class Modem:
             logger.error(f"Error getting response: {e}")
             raise SerialCommunicationError(f"Failed to get response: {e}")
 
+    def get_mode(self) -> ModemMode:
+        """
+        Get current USB mode of the modem.
+
+        Returns:
+            Current ModemMode
+        """
+        if not self.serial or not self.serial.is_open:
+            self.connect()
+
+        try:
+            logger.debug("Checking current USB mode")
+            if not self.serial:
+                raise SerialCommunicationError("Modem not connected")
+
+            response = self.get_response('AT+QCFG="usbnet"', timeout=3)
+            logger.debug(f"Mode response: {response.strip()}")
+
+            # Parse response - format: +QCFG: "usbnet",<mode>
+            match = re.search(r'\+QCFG:\s*"usbnet",\s*(\d+)', response)
+            if match:
+                mode_value = int(match.group(1))
+                for mode in ModemMode:
+                    if mode.value == mode_value:
+                        logger.info(f"Current modem mode: {mode}")
+                        return mode
+                logger.warning(f"Unknown mode value: {mode_value}")
+                return ModemMode.UNKNOWN
+            else:
+                logger.warning("Could not parse mode from response")
+                return ModemMode.UNKNOWN
+
+        except Exception as e:
+            logger.error(f"Error getting modem mode: {e}")
+            return ModemMode.UNKNOWN
+
     def switch_to_ecm_mode(self, apn: Optional[str] = None) -> bool:
         """
         Switch modem to ECM mode.
@@ -178,15 +231,16 @@ class Modem:
 
         try:
             # Check current mode
-            logger.debug("Checking current USB mode")
-            if not self.serial:
-                raise SerialCommunicationError("Modem not connected")
-            if self.serial.in_waiting:
-                self.serial.read(self.serial.in_waiting)
-            self.serial.write(b'AT+QCFG="usbnet"\r\n')
-            time.sleep(1)
-            response = self.serial.read(100).decode("utf-8", errors="ignore")
-            logger.debug(f"Current mode: {response.strip()}")
+            current_mode = self.get_mode()
+            if current_mode == ModemMode.ECM:
+                logger.info("Modem is already in ECM mode")
+                # Still set APN if provided
+                if apn:
+                    logger.info(f"Setting APN to: {apn}")
+                    self.send_command(f'AT+CGDCONT=1,"IP","{apn}"')
+                return True
+
+            logger.info(f"Current mode: {current_mode}, switching to ECM")
 
             # Switch to ECM mode
             if not self.send_command('AT+QCFG="usbnet",1'):
@@ -222,23 +276,112 @@ class Modem:
         self.disconnect()
 
 
+def detect_usb_modem() -> bool:
+    """
+    Detect if RM530 modem is present via USB enumeration.
+
+    Returns:
+        True if modem is detected
+    """
+    try:
+        # Try using lsusb if available
+        result = subprocess.run(
+            ["lsusb"], capture_output=True, text=True, timeout=5, check=True
+        )
+        # Look for Qualcomm or Quectel devices
+        if "Qualcomm" in result.stdout or "Quectel" in result.stdout or "RM530" in result.stdout:
+            logger.debug("Detected Qualcomm/Quectel device via lsusb")
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        logger.debug("lsusb not available or failed")
+
+    try:
+        # Try using usb-devices if available
+        result = subprocess.run(
+            ["usb-devices"], capture_output=True, text=True, timeout=5, check=True
+        )
+        if "Qualcomm" in result.stdout or "Quectel" in result.stdout or "RM530" in result.stdout:
+            logger.debug("Detected Qualcomm/Quectel device via usb-devices")
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        logger.debug("usb-devices not available or failed")
+
+    # Try checking sys/bus/usb/devices
+    try:
+        if os.path.exists("/sys/bus/usb/devices"):
+            for entry in os.listdir("/sys/bus/usb/devices"):
+                if entry.startswith("usb"):
+                    try:
+                        manufacturer = os.path.join("/sys/bus/usb/devices", entry, "manufacturer")
+                        product = os.path.join("/sys/bus/usb/devices", entry, "product")
+                        if os.path.exists(manufacturer) and os.path.exists(product):
+                            with open(manufacturer) as f:
+                                mfg = f.read().strip()
+                            with open(product) as f:
+                                prod = f.read().strip()
+                            if "Qualcomm" in mfg or "Quectel" in mfg or "RM530" in prod:
+                                logger.debug(f"Detected USB device: {mfg} {prod}")
+                                return True
+                    except (IOError, OSError):
+                        continue
+    except (PermissionError, OSError):
+        logger.debug("Could not access /sys/bus/usb/devices")
+
+    # Check for network interfaces that might indicate modem
+    try:
+        result = subprocess.run(
+            ["ip", "link", "show"], capture_output=True, text=True, timeout=5, check=True
+        )
+        # Look for usb0, wwan0, wwp0s* interfaces
+        if any(iface in result.stdout for iface in ["usb0", "wwan0"]) or "wwp" in result.stdout:
+            logger.debug("Detected potential modem interface")
+            return True
+    except (subprocess.CalledProcessError, FileNotFoundError, subprocess.TimeoutExpired):
+        logger.debug("ip command not available or failed")
+
+    return False
+
+
 def find_modem() -> Optional[str]:
     """
     Find the Qualcomm modem's AT command port.
 
+    Uses multiple strategies:
+    1. Check for USB device presence
+    2. Try all /dev/ttyUSB* ports
+    3. Check for CDC-ACM devices
+
     Returns:
         Port path if found, None otherwise
     """
+    # First check if modem is present at all
+    if not detect_usb_modem():
+        logger.debug("No USB modem detected")
+
     ports = glob.glob("/dev/ttyUSB*")
 
     if not ports:
         logger.warning("No /dev/ttyUSB* devices found")
-        return None
+        # Also check for CDC-ACM devices
+        ports.extend(glob.glob("/dev/ttyACM*"))
+        if not ports:
+            logger.warning("No serial modem interfaces found")
+            return None
 
     logger.debug(f"Found {len(ports)} serial ports: {', '.join(sorted(ports))}")
 
-    # Try likely AT command ports first (usually ttyUSB2)
-    preferred_ports = ["/dev/ttyUSB2", "/dev/ttyUSB3", "/dev/ttyUSB1", "/dev/ttyUSB0"]
+    # Try likely AT command ports first (usually ttyUSB2 in QMI/ECM, ttyUSB1 in MBIM)
+    # In ECM mode, AT port is often different
+    preferred_ports = [
+        "/dev/ttyUSB2",
+        "/dev/ttyUSB3",
+        "/dev/ttyUSB1",
+        "/dev/ttyUSB0",
+        "/dev/ttyUSB4",
+        "/dev/ttyUSB5",
+        "/dev/ttyACM0",
+        "/dev/ttyACM1",
+    ]
     all_ports = [p for p in preferred_ports if p in ports] + [
         p for p in ports if p not in preferred_ports
     ]

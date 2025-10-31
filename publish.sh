@@ -1,7 +1,7 @@
 #!/bin/bash
 # Script to publish rm530-5g-integration to PyPI
 
-echo "🚀 Publishing rm530-5g-integration v3.0.0 to PyPI"
+echo "🚀 Publishing rm530-5g-integration v4.0.0 to PyPI"
 echo ""
 
 # Check if credentials are set
@@ -32,10 +32,10 @@ if [ $? -eq 0 ]; then
     echo ""
     echo "✅ Successfully published to PyPI!"
     echo ""
-    echo "Package URL: https://pypi.org/project/rm530-5g-integration/3.0.0/"
+    echo "Package URL: https://pypi.org/project/rm530-5g-integration/4.0.0/"
     echo ""
     echo "Test installation:"
-    echo "  pip install rm530-5g-integration==3.0.0"
+    echo "  pip install rm530-5g-integration==4.0.0"
 else
     echo ""
     echo "❌ Upload failed. Check error messages above."
