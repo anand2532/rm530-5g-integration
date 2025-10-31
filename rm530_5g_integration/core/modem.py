@@ -179,6 +179,8 @@ class Modem:
         try:
             # Check current mode
             logger.debug("Checking current USB mode")
+            if not self.serial:
+                raise SerialCommunicationError("Modem not connected")
             if self.serial.in_waiting:
                 self.serial.read(self.serial.in_waiting)
             self.serial.write(b'AT+QCFG="usbnet"\r\n')

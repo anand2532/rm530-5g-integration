@@ -42,11 +42,12 @@ class ConnectionStats:
     @staticmethod
     def _format_bytes(bytes_count: int) -> str:
         """Format bytes to human-readable format."""
+        bytes_value = float(bytes_count)
         for unit in ["B", "KB", "MB", "GB", "TB"]:
-            if bytes_count < 1024.0:
-                return f"{bytes_count:.2f} {unit}"
-            bytes_count /= 1024.0
-        return f"{bytes_count:.2f} PB"
+            if bytes_value < 1024.0:
+                return f"{bytes_value:.2f} {unit}"
+            bytes_value /= 1024.0
+        return f"{bytes_value:.2f} PB"
 
 
 def get_connection_stats(interface: str = "usb0") -> ConnectionStats:

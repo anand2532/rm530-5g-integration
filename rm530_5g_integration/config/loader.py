@@ -5,7 +5,7 @@ from pathlib import Path
 from typing import Any, Dict, Optional
 
 try:
-    import yaml
+    import yaml  # type: ignore[import-untyped]
 
     YAML_AVAILABLE = True
 except ImportError:
@@ -83,11 +83,11 @@ class ConfigLoader:
 
     def get_defaults(self) -> Dict[str, Any]:
         """Get default network settings."""
-        return self.config.get("defaults", DEFAULT_NETWORK_SETTINGS)
+        return dict(self.config.get("defaults", DEFAULT_NETWORK_SETTINGS))
 
     def get_modem_settings(self) -> Dict[str, Any]:
         """Get modem communication settings."""
-        return self.config.get("modem", DEFAULT_MODEM_SETTINGS)
+        return dict(self.config.get("modem", DEFAULT_MODEM_SETTINGS))
 
 
 def load_config(config_path: Optional[str] = None) -> ConfigLoader:

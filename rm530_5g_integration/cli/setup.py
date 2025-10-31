@@ -26,7 +26,7 @@ console = Console() if RICH_AVAILABLE else None
 
 def print_header(text: str) -> None:
     """Print formatted header."""
-    if RICH_AVAILABLE:
+    if RICH_AVAILABLE and console is not None:
         console.print(Panel(text, style="bold blue", box=box.DOUBLE))
     else:
         print("=" * 60)
@@ -60,7 +60,7 @@ def print_warning(text: str) -> None:
 
 def print_info(text: str) -> None:
     """Print info message."""
-    if RICH_AVAILABLE:
+    if RICH_AVAILABLE and console is not None:
         console.print(f"[cyan]ℹ[/cyan] {text}")
     else:
         print(f"ℹ {text}")
@@ -134,12 +134,16 @@ Examples:
 
         # Step 2: Switching to ECM mode
         if RICH_AVAILABLE:
-            with Progress(
-                SpinnerColumn(),
-                TextColumn("[progress.description]{task.description}"),
-                BarColumn(),
-                console=console,
-            ) as progress:
+        if console is None:
+            print("Rich library not available")
+            return
+
+        with Progress(
+            SpinnerColumn(),
+            TextColumn("[progress.description]{task.description}"),
+            BarColumn(),
+            console=console,
+        ) as progress:
                 task = progress.add_task("Switching to ECM mode...", total=100)
                 progress.update(task, completed=50)
                 time.sleep(0.5)

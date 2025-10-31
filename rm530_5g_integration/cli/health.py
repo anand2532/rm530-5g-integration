@@ -4,6 +4,7 @@ import argparse
 import signal
 import sys
 import time
+from typing import Union
 
 try:
     from rich import box
@@ -25,10 +26,10 @@ logger = setup_logger(__name__)
 console = Console() if RICH_AVAILABLE else None
 
 
-def create_status_table(status: HealthStatus) -> Table:
+def create_status_table(status: HealthStatus) -> Union[Table, None]:  # type: ignore[return-value]
     """Create a table showing health status."""
     if not RICH_AVAILABLE:
-        return None
+        return None  # type: ignore[return-value]
 
     table = Table(title="Connection Health Status", box=box.ROUNDED)
     table.add_column("Property", style="cyan", no_wrap=True)
@@ -103,10 +104,11 @@ def main():
             # Single check
             status = monitor.check_health()
 
-            if RICH_AVAILABLE:
+            if RICH_AVAILABLE and console is not None:
                 table = create_status_table(status)
-                console.print(table)
-                console.print()
+                if console is not None:
+                    console.print(table)
+                    console.print()
             else:
                 print("=" * 60)
                 print("Connection Health Status")
@@ -125,7 +127,7 @@ def main():
             # Live monitoring dashboard
             def on_status_change(status: HealthStatus):
                 """Handle status changes."""
-                if not status.is_healthy:
+                if not status.is_healthy and console is not None:
                     console.print(
                         f"[bold red]Alert:[/bold red] Connection unhealthy! Issues: {', '.join(status.issues)}"
                     )
@@ -136,14 +138,22 @@ def main():
             def signal_handler(sig, frame):
                 """Handle Ctrl+C."""
                 monitor.stop()
-                console.print("\n[bold]Monitoring stopped[/bold]")
+                if console is not None:
+                    console.print("\n[bold]Monitoring stopped[/bold]")
                 sys.exit(0)
 
             signal.signal(signal.SIGINT, signal_handler)
 
-            console.print("[bold green]Starting live health monitoring...[/bold green]")
-            console.print(f"Check interval: {args.interval}s, Failure threshold: {args.threshold}")
-            console.print("Press Ctrl+C to stop\n")
+            if console is not None:
+                console.print("[bold green]Starting live health monitoring...[/bold green]")
+                console.print(
+                    f"Check interval: {args.interval}s, Failure threshold: {args.threshold}"
+                )
+                console.print("Press Ctrl+C to stop\n")
+
+            if console is None:
+                print("Rich library not available, cannot run live monitoring")
+                return
 
             with Live(console=console, refresh_per_second=1) as live:
                 while True:
@@ -160,14 +170,14 @@ def main():
                 timestamp = status.last_check.strftime("%Y-%m-%d %H:%M:%S")
 
                 if status.is_healthy:
-                    if RICH_AVAILABLE:
+                    if RICH_AVAILABLE and console is not None:
                         console.print(
                             f"[{timestamp}] [bold green]✓[/bold green] Connection healthy"
                         )
                     else:
                         print(f"[{timestamp}] ✓ Connection healthy")
                 else:
-                    if RICH_AVAILABLE:
+                    if RICH_AVAILABLE and console is not None:
                         console.print(
                             f"[{timestamp}] [bold red]✗[/bold red] Connection unhealthy "
                             f"(Failures: {status.consecutive_failures})"
@@ -185,7 +195,7 @@ def main():
 
                 # Alert on threshold
                 if status.consecutive_failures >= args.threshold:
-                    if RICH_AVAILABLE:
+                    if RICH_AVAILABLE and console is not None:
                         console.print(
                             Panel(
                                 f"[bold red]ALERT:[/bold red] Connection has failed {status.consecutive_failures} "
@@ -208,7 +218,7 @@ def main():
             def signal_handler(sig, frame):
                 """Handle Ctrl+C."""
                 monitor.stop()
-                if RICH_AVAILABLE:
+                if RICH_AVAILABLE and console is not None:
                     console.print("\n[bold]Monitoring stopped[/bold]")
                 else:
                     print("\nMonitoring stopped")
@@ -216,7 +226,7 @@ def main():
 
             signal.signal(signal.SIGINT, signal_handler)
 
-            if RICH_AVAILABLE:
+            if RICH_AVAILABLE and console is not None:
                 console.print(f"[bold green]Health monitoring started[/bold green]")
                 console.print(
                     f"Check interval: {args.interval}s, Failure threshold: {args.threshold}"
@@ -235,8 +245,11 @@ def main():
         monitor.stop()
         sys.exit(0)
     except Exception as e:
-        if RICH_AVAILABLE:
-            console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
+        if RICH_AVAILABLE and console is not None:
+            if console is not None:
+                console.print(f"[bold red]✗ Error:[/bold red] {str(e)}")
+            else:
+                print(f"✗ Error: {str(e)}")
         else:
             print(f"✗ Error: {e}")
         sys.exit(1)

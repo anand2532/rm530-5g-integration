@@ -73,6 +73,8 @@ def retry(
                         logger.warning(f"All {max_attempts} attempts failed for {func.__name__}")
 
             # Re-raise the last exception if all attempts failed
+            if last_exception is None:
+                raise RuntimeError(f"All {max_attempts} attempts failed for {func.__name__}")
             raise last_exception
 
         return wrapper
