@@ -1,4 +1,9 @@
-# RM530 5G Integration Package v3.0
+# RM530 5G Integration
+
+[![Python Version](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![PyPI version](https://badge.fury.io/py/rm530-5g-integration.svg)](https://badge.fury.io/py/rm530-5g-integration)
+[![CI Status](https://github.com/anand2532/rm530-5g-integration/workflows/CI/badge.svg)](https://github.com/anand2532/rm530-5g-integration/actions)
 
 Python package for integrating Waveshare RM530 5G modem with Raspberry Pi using ECM (Ethernet Control Model) mode.
 
@@ -6,29 +11,16 @@ Python package for integrating Waveshare RM530 5G modem with Raspberry Pi using 
 
 This package provides automated tools and comprehensive documentation for setting up a Waveshare RM530 5G modem in ECM mode on Raspberry Pi. ECM mode provides native Linux integration with better stability and performance compared to QMI mode.
 
-## 🎉 Version 3.0 Highlights
-
-- ✨ **Enhanced CLI with Rich** - Beautiful terminal output with progress bars and tables
-- 🏥 **Health Monitoring** - Automatic connection health checks and alerts
-- 🔄 **Retry Logic** - Robust error recovery with exponential backoff
-- ✅ **Testing Framework** - Comprehensive test suite with pytest
-- 🚀 **CI/CD Pipeline** - Automated testing and quality checks
-- 📊 **Signal Quality Monitoring** - RSSI, RSRP, RSRQ, SINR metrics
-- 📈 **Connection Statistics** - Real-time bandwidth and connection stats
-- ⚙️ **Configuration Validation** - Validate configuration files before use
-- 🎯 **Type Hints** - Full type annotations for better IDE support
-- 📝 **Structured Logging** - Professional logging system
-
 ## Features
 
-- ✅ **ECM Mode Setup** - Automated switching from QMI to ECM mode
-- ✅ **NetworkManager Integration** - Native Linux networking support
-- ✅ **Unified Setup** - One command for complete configuration
-- ✅ **Signal Monitoring** - Real-time signal quality metrics
-- ✅ **Connection Statistics** - Bandwidth and connection monitoring
-- ✅ **Configuration Management** - Carrier profiles and settings
-- ✅ **Comprehensive Documentation** - Complete guides and references
-- ✅ **Production Ready** - Stable and tested setup
+- 🚀 **One-Command Setup** - Complete modem configuration in a single command
+- 📊 **Signal Quality Monitoring** - Real-time RSSI, RSRP, RSRQ, and SINR metrics
+- 📈 **Connection Statistics** - Bandwidth monitoring and connection stats
+- 🏥 **Health Monitoring** - Automatic connection health checks and alerts
+- 🔄 **Retry Logic** - Robust error recovery with exponential backoff
+- ⚙️ **Configuration Management** - YAML-based carrier profiles and settings
+- ✅ **Production Ready** - Comprehensive testing and CI/CD pipeline
+- 🎯 **Type Safe** - Full type annotations for better IDE support
 
 ## Installation
 
@@ -36,16 +28,25 @@ This package provides automated tools and comprehensive documentation for settin
 pip install rm530-5g-integration
 ```
 
-Or from source:
+### From Source
+
 ```bash
 git clone https://github.com/anand2532/rm530-5g-integration.git
 cd rm530-5g-integration
 pip install .
 ```
 
-## Quick Start (v2.0 - Recommended)
+### Development Installation
 
-### Single Command Setup
+```bash
+git clone https://github.com/anand2532/rm530-5g-integration.git
+cd rm530-5g-integration
+pip install -e ".[dev]"
+```
+
+## Quick Start
+
+### Basic Setup
 
 ```bash
 # Setup with APN
@@ -55,57 +56,35 @@ sudo rm530-setup --apn airtelgprs.com
 sudo rm530-setup --carrier airtel
 ```
 
-That's it! The command will:
-1. Switch modem to ECM mode
-2. Configure NetworkManager
-3. Activate the connection
-4. Verify setup
+The setup command automatically:
+1. Switches modem to ECM mode
+2. Configures NetworkManager
+3. Activates the connection
+4. Verifies the setup
 
 ### Check Status
 
 ```bash
-# Check connection status
+# Check connection status and statistics
 rm530-status
 
 # Check signal quality
 sudo rm530-signal
-```
 
-## Quick Start (Legacy - v1.0 style)
-
-### Step-by-step Setup
-
-```bash
-# 1. Switch to ECM mode
-sudo rm530-setup-ecm airtelgprs.com
-
-# 2. Wait 15 seconds for modem restart, then configure NetworkManager
-rm530-configure-network
-
-# 3. Verify connection
-rm530-verify
+# Monitor connection health
+rm530-health --once
 ```
 
 ## Commands
 
-### v3.0 Commands (Recommended)
-
-| Command | Purpose |
-|---------|---------|
+| Command | Description |
+|---------|-------------|
 | `rm530-setup [--apn APN \| --carrier NAME]` | Complete setup (ECM + NetworkManager) |
 | `rm530-status [--interface usb0]` | Check connection status and statistics |
 | `rm530-signal` | Display signal quality (RSSI, RSRP, RSRQ, SINR) |
-| `rm530-health [--once \| --live]` | Monitor connection health (NEW in v3.0) |
+| `rm530-health [--once \| --live]` | Monitor connection health |
 
-### Legacy Commands (v1.0 - Still Supported)
-
-| Command | Purpose |
-|---------|---------|
-| `rm530-setup-ecm <apn>` | Switch modem to ECM mode |
-| `rm530-configure-network [--interface usb0]` | Configure NetworkManager connection |
-| `rm530-verify` | Verify 5G connection status |
-
-## Configuration File
+## Configuration
 
 Create `~/.rm530/config.yaml` for carrier profiles:
 
@@ -127,14 +106,9 @@ defaults:
   connection_name: RM530-5G-ECM
 ```
 
-Then use:
-```bash
-sudo rm530-setup --carrier airtel
-```
+## Python API
 
-## Usage Examples
-
-### Python API (v3.0)
+### Basic Usage
 
 ```python
 from rm530_5g_integration import RM530Manager
@@ -160,25 +134,46 @@ if manager.verify():
     print("Connection is working!")
 ```
 
-### Python API (Legacy)
+### Health Monitoring
 
 ```python
-from rm530_5g_integration.scripts.setup_ecm import switch_to_ecm_mode
-from rm530_5g_integration.scripts.configure_network import configure_network
-from rm530_5g_integration.scripts.verify import verify_connection
+from rm530_5g_integration import HealthMonitor
 
-# Switch to ECM mode
-success = switch_to_ecm_mode(apn="airtelgprs.com")
+monitor = HealthMonitor(
+    check_interval=30,
+    failure_threshold=3
+)
 
-# Configure NetworkManager
-if success:
-    configure_network(interface="usb0")
+# Single health check
+status = monitor.check_health()
+if status.is_healthy:
+    print("Connection is healthy!")
+else:
+    print(f"Issues: {', '.join(status.issues)}")
 
-# Verify connection
-verify_connection()
+# Start continuous monitoring
+monitor.start()
 ```
 
-## Package Structure
+## Requirements
+
+- **Python**: 3.9+
+- **OS**: Raspberry Pi OS or Debian-based Linux
+- **Hardware**: Waveshare RM530 5G modem
+- **Software**: NetworkManager (installed by default on most Linux distributions)
+- **Privileges**: Root/sudo access required for setup
+
+## Dependencies
+
+- `pyserial >= 3.5` - Serial communication with modem
+- `pyyaml >= 6.0` - Configuration file parsing
+
+### Optional Dependencies
+
+- `rich >= 13.0` - Enhanced CLI output (progress bars, tables, colors)
+- `sphinx >= 7.0` - Documentation generation (development)
+
+## Project Structure
 
 ```
 rm530-5g-integration/
@@ -186,174 +181,67 @@ rm530-5g-integration/
 │   ├── core/              # Core functionality
 │   │   ├── modem.py       # Modem communication
 │   │   ├── network.py     # NetworkManager integration
-│   │   └── manager.py     # Main manager class
+│   │   ├── manager.py     # Main manager class
+│   │   └── health.py      # Health monitoring
 │   ├── config/            # Configuration management
 │   ├── monitoring/        # Signal and stats monitoring
-│   ├── cli/               # CLI commands (v2.0)
-│   ├── utils/             # Utilities (logging, exceptions)
-│   ├── scripts/           # Legacy scripts (v1.0)
-│   ├── docs/              # Documentation
-│   ├── reference/         # References
-│   └── legacy/            # Legacy documentation
+│   ├── cli/               # CLI commands
+│   ├── utils/             # Utilities (logging, exceptions, retry)
+│   └── scripts/           # Legacy scripts
+├── tests/                 # Test suite
+├── docs/                  # Documentation
 ├── README.md
+├── CHANGELOG.md
+├── CONTRIBUTING.md
 ├── LICENSE
 └── pyproject.toml
 ```
 
-## Requirements
-
-- Python 3.8+ (was 3.7+ in v1.0)
-- Raspberry Pi OS or Debian-based Linux
-- Waveshare RM530 5G modem
-- NetworkManager installed
-- Root/sudo access
-
-## Dependencies
-
-- pyserial >= 3.5
-- pyyaml >= 6.0 (for configuration files)
-
-## Migration from v1.0
-
-### Breaking Changes
-
-1. **Python 3.8+ required** (was 3.7+)
-2. **New unified API** - Use `RM530Manager` class instead of individual scripts
-3. **New CLI commands** - `rm530-setup` replaces multiple commands
-
-### Migration Guide
-
-**Old way (v1.0):**
-```bash
-sudo rm530-setup-ecm airtelgprs.com
-# wait...
-rm530-configure-network
-rm530-verify
-```
-
-**New way (v2.0):**
-```bash
-sudo rm530-setup --apn airtelgprs.com
-```
-
-**Python API:**
-
-```python
-# Old (v1.0) - still works!
-from rm530_5g_integration.scripts.setup_ecm import switch_to_ecm_mode
-
-# New (v2.0) - recommended
-from rm530_5g_integration import RM530Manager
-manager = RM530Manager()
-manager.setup(apn="airtelgprs.com")
-```
-
 ## Documentation
 
-### Package Documentation
-
-Full documentation is included in the package:
-
-- **Main Docs**: `rm530_5g_integration/docs/`
-- **References**: `rm530_5g_integration/reference/`
-- **Legacy**: `rm530_5g_integration/legacy/`
-
-### Project Documentation
-
-- **[CHANGELOG.md](CHANGELOG.md)** - Version history and upgrade guides
-- **[docs/BUILD-PROCESS.md](docs/BUILD-PROCESS.md)** - Build and release process
-- **[docs/PUBLISH.md](docs/PUBLISH.md)** - Publishing guide
-- **[docs/QUICK-PUBLISH.md](docs/QUICK-PUBLISH.md)** - Quick publishing reference
-
-### Access Package Documentation
-
-```python
-import rm530_5g_integration
-print(rm530_5g_integration.__file__)  # Shows package location
-```
-
-### Generate API Documentation
-
-```bash
-# Install docs dependencies
-pip install -e ".[docs]"
-
-# Build documentation
-cd docs && make html
-
-# View documentation
-open _build/html/index.html
-```
+- **[CHANGELOG.md](CHANGELOG.md)** - Version history and migration guides
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Contributing guidelines
+- **[Package Documentation](rm530_5g_integration/docs/)** - Detailed guides and references
 
 ## Troubleshooting
 
 Run the verification tool to diagnose issues:
+
 ```bash
 rm530-status
 ```
 
 Or check signal quality:
+
 ```bash
 sudo rm530-signal
 ```
 
-See detailed troubleshooting guide:
-- `rm530_5g_integration/reference/TROUBLESHOOTING.md`
-
-## Features in Detail
-
-### ECM Mode Benefits
-
-- **Native Integration**: Uses standard Linux kernel CDC-ECM driver
-- **NetworkManager Support**: Automatic management and reconnection
-- **Better Performance**: Lower overhead than QMI
-- **Stability**: No external dialer scripts required
-- **Standard Tools**: Works with standard Linux networking tools
-
-### Signal Quality Metrics
-
-- **RSSI**: Received Signal Strength Indicator (dBm)
-- **RSRP**: Reference Signal Received Power (dBm) - 4G/5G
-- **RSRQ**: Reference Signal Received Quality (dB) - 4G/5G
-- **SINR**: Signal to Interference plus Noise Ratio (dB) - 4G/5G
-
-### Connection Statistics
-
-- Real-time bandwidth monitoring (bytes sent/received)
-- Packet statistics
-- Connection uptime
-- IP address information
+For detailed troubleshooting, see the [troubleshooting guide](rm530_5g_integration/reference/TROUBLESHOOTING.md).
 
 ## Contributing
 
-Contributions are welcome! Please see [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+Contributions are welcome! Please read our [Contributing Guidelines](CONTRIBUTING.md) before submitting pull requests.
 
-- Report bugs via [GitHub Issues](https://github.com/anand2532/rm530-5g-integration/issues)
-- Submit pull requests for improvements
-- Follow the code style and testing guidelines
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License - see LICENSE file for details.
-
-## Changelog
-
-See [CHANGELOG.md](CHANGELOG.md) for detailed version history and upgrade guides.
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Acknowledgments
 
 - Based on Waveshare RM530 5G modem specifications
 - Compatible with Waveshare PCIe TO 4G/5G M.2 USB3.2 HAT+
 
-## References
-
-- [Waveshare PCIe TO 4G/5G HAT+ Wiki](https://www.waveshare.com/wiki/PCIe-TO-4G-5G-M.2-USB3.2-HAT-PLUS)
-- [NetworkManager Documentation](https://networkmanager.dev/docs/)
-- [Linux CDC-ECM Documentation](https://www.kernel.org/doc/html/latest/usb/cdc-ecm.html)
-
 ## Support
 
-For issues, questions, or contributions, please use the GitHub Issues page.
+- **Issues**: [GitHub Issues](https://github.com/anand2532/rm530-5g-integration/issues)
+- **Documentation**: See the [docs](rm530_5g_integration/docs/) directory
 
 ---
 
