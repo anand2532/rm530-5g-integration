@@ -84,21 +84,37 @@ class RM530Manager:
         interface = interface or self._defaults.get("preferred_interface", "usb0")
         connection_name = self._defaults.get("connection_name", "RM530-5G-ECM")
 
+        # Check if interface already exists (modem might be in ECM mode)
+        interface_exists = self._check_interface_exists(interface)
+        
         try:
-            # Step 1: Switch to ECM mode
-            logger.info(f"Switching modem to ECM mode with APN: {apn}")
-            self.modem = Modem(baudrate=self._modem_settings["at_baudrate"])
-            self.modem.connect()
+            # Step 1: Try to switch to ECM mode (may fail if already in ECM)
+            modem_configured = False
+            try:
+                logger.info(f"Attempting to configure modem for ECM mode with APN: {apn}")
+                self.modem = Modem(baudrate=self._modem_settings["at_baudrate"])
+                self.modem.connect()
 
-            if not self.modem.switch_to_ecm_mode(apn=apn):
-                logger.error("Failed to switch to ECM mode")
-                return False
+                if self.modem.switch_to_ecm_mode(apn=apn):
+                    modem_configured = True
+                    logger.info("Modem configured successfully")
+                else:
+                    logger.warning("Modem configuration failed")
 
-            self.modem.disconnect()
+                self.modem.disconnect()
 
-            if wait_restart:
-                logger.info("Waiting for modem to restart (15 seconds)...")
-                time.sleep(15)
+                if modem_configured and wait_restart:
+                    logger.info("Waiting for modem to restart (15 seconds)...")
+                    time.sleep(15)
+            except ModemNotFoundError:
+                if interface_exists:
+                    logger.info(f"Interface {interface} already exists - modem may be in ECM mode")
+                else:
+                    logger.warning("Modem not found and interface doesn't exist - proceeding with NetworkManager setup anyway")
+            except Exception as e:
+                logger.warning(f"Error configuring modem: {e}")
+                if not interface_exists:
+                    raise RM530Error(f"Setup failed: {e}")
 
             # Step 2: Configure NetworkManager
             carrier_config = self.config.get_carrier_config(carrier) if carrier else {}
@@ -125,6 +141,27 @@ class RM530Manager:
         except Exception as e:
             logger.error(f"Setup failed: {e}")
             raise RM530Error(f"Setup failed: {e}")
+
+    def _check_interface_exists(self, interface: str) -> bool:
+        """
+        Check if a network interface exists.
+
+        Args:
+            interface: Network interface name
+
+        Returns:
+            True if interface exists
+        """
+        try:
+            result = subprocess.run(
+                ["ip", "link", "show", interface], capture_output=True, text=True, check=True
+            )
+            return result.returncode == 0
+        except subprocess.CalledProcessError:
+            return False
+        except Exception as e:
+            logger.debug(f"Error checking interface: {e}")
+            return False
 
     def status(self, interface: str = "usb0") -> ConnectionStats:
         """

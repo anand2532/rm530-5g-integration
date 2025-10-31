@@ -4,7 +4,7 @@ RM530 5G Integration Package
 Integration tools for Quectel RM530 5G modem with Raspberry Pi using ECM mode.
 """
 
-__version__ = "4.0.0"
+__version__ = "4.0.1"
 __author__ = "Anand"
 __email__ = "anand@example.com"
 __description__ = "Integration tools and scripts for Quectel RM530 5G modem with Raspberry Pi"

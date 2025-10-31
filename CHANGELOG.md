@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [4.0.1] - 2024-11-01
+
+### Fixed
+- 🐛 Fixed setup failing when modem is already in ECM mode
+- 🐛 Improved graceful handling when AT command port is not accessible
+- 🐛 Better error messages when modem detection fails
+- 🐛 Setup now proceeds with NetworkManager configuration even if modem not detected via AT commands
+- 🐛 Added interface existence check to detect if modem is already in ECM mode
+
+### Improved
+- Better handling of modem already configured in ECM mode
+- More informative warning messages during setup
+- Setup is more robust for existing ECM installations
+- NetworkManager configuration proceeds even when AT commands unavailable
+
 ## [4.0.0] - 2024-11-01
 
 ### Added
